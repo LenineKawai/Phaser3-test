@@ -3,15 +3,51 @@ import Phaser from 'phaser'
 /**
  * @description saucisse
  */
+class Player {
+    paddle  : Phaser.Physics.Arcade.Image
+    paddlePos : {x: number, y:number}
+    PowerUp : [{
+        name    : string,
+        id      : number
+    }]
+    score   : number[]
+
+    constructor() {
+    }
+}
+
+class Ball extends Phaser.Scene {
+    obj: Phaser.Physics.Arcade.Sprite
+    pos: {x: number, y: number}
+    type: string
+
+    constructor(x : number, y : number, scale : number, bounce : number) {
+        super();
+        this.type = 'vanilla'
+        this.obj = this.physics.add.sprite(x / 2, y / 2, 'ball').setScale(scale);
+        
+        let {width, height} = this.sys.game.canvas;
+
+        this.obj.setMaxVelocity(width, height)
+        this.obj.setBounce(bounce)
+        this.obj.setVelocity(Math.random() * width / 1.5, Math.random() * height / 1.5)
+    }
+}
 
 class MainScene extends Phaser.Scene {
     constructor() {
         super ('MainScene')
     }
-    ball : Phaser.Physics.Arcade.Sprite;
+
+    ball :  Ball;
     paddle : Phaser.Physics.Arcade.Image[];
     cursor : Phaser.Types.Input.Keyboard.CursorKeys;
-    
+    firstHalfReached : boolean;
+    player: [{
+        paddle: Phaser.Physics.Arcade.Image,
+
+    }]
+
     preload() {
         this.load.image('ball', 'ball.png')
         this.load.image('paddle', 'testPaddle.png')
@@ -19,12 +55,7 @@ class MainScene extends Phaser.Scene {
     create ()
     {
         let {width, height} = this.sys.game.canvas;
-
-        this.ball =  this.physics.add.sprite(width / 2, height / 2, 'ball')
-        .setScale(0.5);
-        this.ball.setMaxVelocity(height, height)
-        this.ball.setBounce(2)
-        this.ball.setVelocityY(-300)
+        this.ball = new Ball(width / 2, height / 2, 0.5, 2)
 
         this.paddle = [this.physics.add.image(width / 2, 50, 'paddle'),
         this.physics.add.image(width / 2, height - 50, 'paddle')]
@@ -35,17 +66,19 @@ class MainScene extends Phaser.Scene {
     update(time: number, delta: number): void {
         let {width, height} = this.sys.game.canvas;
 
-        this.ball.setCollideWorldBounds(true)
+        this.ball.obj.setCollideWorldBounds(true)
         this.paddle[0].setCollideWorldBounds(true)
         this.paddle[1].setCollideWorldBounds(true)
-        this.physics.add.collider(this.paddle, this.ball)
+        this.physics.add.collider(this.paddle, this.ball.obj)
 
         // this.paddle[0].setVelocity(0)
         // this.paddle[1].setVelocity(0)
 
         if (this.paddle[0].getBottomCenter().y >= height / 2)
-            this.paddle[0].setVelocityY(0)
-        else if (this.cursor.down.isDown)
+            this.firstHalfReached = true;
+        else
+            this.firstHalfReached = false;
+        if (this.cursor.down.isDown && !this.firstHalfReached)
                 this.paddle[0].setVelocityY(200)
         else if (this.cursor.up.isDown)
             this.paddle[0].setVelocityY(-200)
