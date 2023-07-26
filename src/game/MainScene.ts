@@ -21,10 +21,10 @@ class Ball extends Phaser.Scene {
     pos: {x: number, y: number}
     type: string
 
-    constructor(x : number, y : number, scale : number, bounce : number) {
+    constructor(ballSprite : Phaser.Physics.Arcade.Sprite, bounce : number) {
         super();
         this.type = 'vanilla'
-        this.obj = this.physics.add.sprite(x / 2, y / 2, 'ball').setScale(scale);
+        this.obj = ballSprite;
         
         let {width, height} = this.sys.game.canvas;
 
@@ -55,7 +55,7 @@ class MainScene extends Phaser.Scene {
     create ()
     {
         let {width, height} = this.sys.game.canvas;
-        this.ball = new Ball(width / 2, height / 2, 0.5, 2)
+        this.ball = new Ball(this.physics.add.sprite(width / 2, height / 2, 'ball').setScale(0.5), 2)
 
         this.paddle = [this.physics.add.image(width / 2, 50, 'paddle'),
         this.physics.add.image(width / 2, height - 50, 'paddle')]
