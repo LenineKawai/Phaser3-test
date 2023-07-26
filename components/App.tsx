@@ -18,7 +18,8 @@ class App extends React.Component<AppProps, AppState> {
                 default: 'arcade',
                 arcade: {
                     gravity: {
-                        y: 200
+                        y: 0,
+                        x: 0
                     },
                     // debug: true
                 }
